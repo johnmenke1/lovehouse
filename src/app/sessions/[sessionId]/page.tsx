@@ -38,16 +38,31 @@ interface Message {
 
 export default function SessionChatPage() {
   const params = useParams();
-  const sessionId = params.sessionId as string;
+  // Next.js 14: params is a Promise in some versions, or direct object
+  const rawSessionId = Array.isArray(params.sessionId) ? params.sessionId[0] : params.sessionId;
+  const sessionId = typeof rawSessionId === 'string' ? rawSessionId : null;
   
   const [session, setSession] = useState<SessionData | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
+  const [initError, setInitError] = useState<string | null>(null);
+
+  // Debug params on mount
+  useEffect(() => {
+    console.log('useParams result:', JSON.stringify(params));
+    console.log('Derived sessionId:', sessionId);
+  }, [params, sessionId]);
 
   // Fetch session data
   useEffect(() => {
+    if (!sessionId) {
+      setInitError('No session ID found in URL');
+      setLoading(false);
+      return;
+    }
+    
     async function fetchSession() {
       try {
         console.log('Fetching session:', sessionId);
@@ -127,6 +142,14 @@ export default function SessionChatPage() {
     }
   }, [sessionId]);
 
+  if (initError) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-red-400">Init Error: {initError}</div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
@@ -147,14 +170,6 @@ export default function SessionChatPage() {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="text-gray-400">Session not found</div>
-      </div>
-    );
-  }
-
-  if (error || !session) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-red-400">{error || 'Session not found'}</div>
       </div>
     );
   }
