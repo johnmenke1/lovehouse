@@ -74,7 +74,7 @@ export async function POST(
     const recentHistory = historyResult.rows.reverse();
 
     // 4. Have each agent respond in turn
-    for (const agent of agents) {
+    for (const agent of agents as { id: string; name: string; system_prompt: string; mood: string }[]) {
       const agentName = agent.name;
       const agentMood = agent.mood || 'neutral';
       
