@@ -5,14 +5,15 @@ import { useRouter } from 'next/navigation';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { useQuery } from '@tanstack/react-query';
-import type { Agent } from '@/types';
+import type { Agent, Session } from '@/types';
 
 interface CreateSessionModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSessionCreated?: (session: Session) => void;
 }
 
-export function CreateSessionModal({ isOpen, onClose }: CreateSessionModalProps) {
+export function CreateSessionModal({ isOpen, onClose, onSessionCreated }: CreateSessionModalProps) {
   const router = useRouter();
   const [name, setName] = useState('');
   const [selectedAgents, setSelectedAgents] = useState<string[]>([]);
@@ -51,7 +52,11 @@ export function CreateSessionModal({ isOpen, onClose }: CreateSessionModalProps)
 
       if (res.ok) {
         const session = await res.json();
-        router.push(`/sessions/${session.id}`);
+        if (onSessionCreated) {
+          onSessionCreated(session);
+        } else {
+          router.push(`/sessions/${session.id}`);
+        }
         onClose();
       }
     } finally {

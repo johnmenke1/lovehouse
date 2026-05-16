@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { CreateSessionModal } from '@/components/session/CreateSessionModal';
 
 interface SessionAgent {
   id: string;
@@ -27,6 +28,7 @@ export default function SessionsPage() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     async function fetchSessions() {
@@ -44,6 +46,11 @@ export default function SessionsPage() {
     }
     fetchSessions();
   }, []);
+
+  const handleSessionCreated = (newSession: Session) => {
+    setSessions(prev => [newSession, ...prev]);
+    setShowCreateModal(false);
+  };
 
   if (loading) {
     return (
@@ -66,7 +73,10 @@ export default function SessionsPage() {
       <div className="max-w-4xl mx-auto p-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-white">Sessions</h1>
-          <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+          <button 
+            onClick={() => setShowCreateModal(true)}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+          >
             + New Session
           </button>
         </div>
@@ -107,6 +117,12 @@ export default function SessionsPage() {
           </div>
         )}
       </div>
+
+      <CreateSessionModal 
+        isOpen={showCreateModal} 
+        onClose={() => setShowCreateModal(false)}
+        onSessionCreated={handleSessionCreated}
+      />
     </div>
   );
 }
