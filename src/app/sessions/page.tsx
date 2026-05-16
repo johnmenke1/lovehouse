@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { CreateSessionModal } from '@/components/session/CreateSessionModal';
 
 interface SessionAgent {
@@ -29,6 +30,7 @@ export default function SessionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchSessions() {
@@ -50,6 +52,11 @@ export default function SessionsPage() {
   const handleSessionCreated = (newSession: unknown) => {
     setSessions(prev => [newSession as Session, ...prev]);
     setShowCreateModal(false);
+  };
+
+  const handleSessionClick = (sessionId: string) => {
+    console.log('Navigating to session:', sessionId);
+    router.push(`/sessions/${sessionId}`);
   };
 
   if (loading) {
@@ -91,6 +98,7 @@ export default function SessionsPage() {
             {sessions.map((session) => (
               <div
                 key={session.id}
+                onClick={() => handleSessionClick(session.id)}
                 className="bg-gray-800 rounded-lg p-4 border border-gray-700 hover:border-purple-500 transition cursor-pointer"
               >
                 <div className="flex items-center justify-between">
