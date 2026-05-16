@@ -3,10 +3,10 @@
 import { cn } from '@/lib/utils';
 
 interface TypingIndicatorProps {
-  agentName: string;
+  agentName?: string;
 }
 
-export function TypingIndicator({ agentName }: TypingIndicatorProps) {
+export function TypingIndicator({ agentName = 'Someone' }: TypingIndicatorProps) {
   return (
     <div className="flex items-center gap-2 text-gray-400">
       <div className="flex gap-1">
