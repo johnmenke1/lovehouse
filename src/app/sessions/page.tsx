@@ -47,8 +47,8 @@ export default function SessionsPage() {
     fetchSessions();
   }, []);
 
-  const handleSessionCreated = (newSession: Session) => {
-    setSessions(prev => [newSession, ...prev]);
+  const handleSessionCreated = (newSession: unknown) => {
+    setSessions(prev => [newSession as Session, ...prev]);
     setShowCreateModal(false);
   };
 
