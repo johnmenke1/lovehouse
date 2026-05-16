@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { useQuery } from '@tanstack/react-query';
-import type { Agent, Session } from '@/types';
+import type { Agent } from '@/types';
 
 interface CreateSessionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSessionCreated?: (session: Session) => void;
+  onSessionCreated?: (session: Record<string, unknown>) => void;
 }
 
 export function CreateSessionModal({ isOpen, onClose, onSessionCreated }: CreateSessionModalProps) {
