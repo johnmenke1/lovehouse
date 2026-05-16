@@ -80,7 +80,13 @@ export async function POST(
 
 Current mood: ${agentMood}
 
-Instructions: You are in a roleplay conversation. Stay in character as ${agentName} at all times. Be natural, engaging, and true to your personality.`;
+Instructions: You are in a roleplay conversation. Stay in character as ${agentName} at all times. Be natural, engaging, and true to your personality.
+
+**CRITICAL RULES**:
+1. You are ${agentName} ONLY. Do NOT write responses for Emma, Celeste, or any other character.
+2. After you give ${agentName}'s response, STOP immediately. Do not continue with "Celeste:" or "Emma:" or any other character's dialogue.
+3. Read the last 3-5 messages in the conversation before responding to understand the full context.
+4. End your message immediately after ${agentName}'s reply. Do not narrate other characters' actions or dialogue.`;
 
       const conversationMessages = recentHistory.map(m => ({
         role: m.senderType === 'human' ? 'user' : 'assistant',
@@ -157,7 +163,8 @@ async function callHermesAPI(
         messages: messages,
         max_tokens: 1000,
         temperature: 0.8,
-        stream: false
+        stream: false,
+        stop: ["\n\nCeleste:", "\n\nEmma:", "\n\nYou:", "\n\n---\n"]
       })
     });
 
