@@ -102,7 +102,7 @@ export default function SessionChatPage() {
   }, [sessionId]);
 
   const handleSendMessage = useCallback(async (content: string) => {
-    if (!content.trim()) return;
+    if (!sessionId || !content.trim()) return;
 
     // Add human message immediately
     const humanMessage: Message = {
