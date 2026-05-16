@@ -114,7 +114,9 @@ export async function POST(
         }
 
         const llmData = await llmResponse.json();
-        const agentContent = llmData.choices?.[0]?.message?.content || `${agentName} is here!`;
+        let agentContent = llmData.choices?.[0]?.message?.content || `${agentName} is here!`;
+        // Strip reasoning tokens if present (MiniMax M2.7 adds internal reasoning)
+        agentContent = agentContent.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
 
         // Save agent message
         await query(
