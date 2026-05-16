@@ -81,7 +81,7 @@ export async function POST(
       // Call the LLM
       try {
         const model = process.env.MINIMAX_MODEL || 'minimax-m2.7';
-        const llmResponse = await fetch(`${process.env.MINIMAX_BASE_URL || 'https://api.minimax.chat/v1'}/chat/completions`, {
+        const llmResponse = await fetch(`${process.env.MINIMAX_BASE_URL || 'https://api.minimax.io/v1'}/chat/completions`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
