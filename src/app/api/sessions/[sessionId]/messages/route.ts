@@ -41,14 +41,11 @@ export async function POST(
     }
 
     // 1. Save the human message
-    const humanResult = await query(
+    await query(
       `INSERT INTO messages (session_id, sender_type, sender_name, content)
-       VALUES ($1, 'human', 'You', $2)
-       RETURNING *`,
+       VALUES ($1, 'human', 'You', $2)`,
       [sessionId, content.trim()]
     );
-
-    const humanMessage = humanResult.rows[0];
 
     // 2. Get session agents in hierarchy order
     const agentsResult = await query(
@@ -83,6 +80,7 @@ export async function POST(
 
       // Call the LLM
       try {
+        const model = process.env.MINIMAX_MODEL || 'minimax-m2.7';
         const llmResponse = await fetch(`${process.env.MINIMAX_BASE_URL || 'https://api.minimax.chat/v1'}/chat/completions`, {
           method: 'POST',
           headers: {
@@ -90,26 +88,36 @@ export async function POST(
             'Authorization': `Bearer ${process.env.MINIMAX_API_KEY}`
           },
           body: JSON.stringify({
-            model: process.env.MINIMAX_MODEL || 'MiniMax-Text-01',
+            model: model,
             messages: [
-              { role: 'user', content }
+              { role: 'user', content: context }
             ],
             max_tokens: 500,
             temperature: 0.8
           })
         });
 
-        if (llmResponse.ok) {
-          const llmData = await llmResponse.json();
-          const agentContent = llmData.choices?.[0]?.message?.content || `${agentName} responds...`;
-
-          // Save agent message
+        if (!llmResponse.ok) {
+          const errorText = await llmResponse.text();
+          console.error(`LLM API error for ${agentName}:`, llmResponse.status, errorText);
+          // Save fallback message so user sees something
           await query(
             `INSERT INTO messages (session_id, sender_type, sender_id, sender_name, content)
              VALUES ($1, 'agent', $2, $3, $4)`,
-            [sessionId, agent.id, agentName, agentContent]
+            [sessionId, agent.id, agentName, `${agentName} is here and ready to chat! 💋`]
           );
+          continue;
         }
+
+        const llmData = await llmResponse.json();
+        const agentContent = llmData.choices?.[0]?.message?.content || `${agentName} is here!`;
+
+        // Save agent message
+        await query(
+          `INSERT INTO messages (session_id, sender_type, sender_id, sender_name, content)
+           VALUES ($1, 'agent', $2, $3, $4)`,
+          [sessionId, agent.id, agentName, agentContent]
+        );
       } catch (llmError) {
         console.error(`LLM error for ${agentName}:`, llmError);
         // Save a fallback message
