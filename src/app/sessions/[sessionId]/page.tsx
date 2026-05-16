@@ -50,13 +50,16 @@ export default function SessionChatPage() {
   useEffect(() => {
     async function fetchSession() {
       try {
+        console.log('Fetching session:', sessionId);
         const res = await fetch(`/api/sessions/${sessionId}`);
+        console.log('Session response status:', res.status);
         if (!res.ok) throw new Error('Failed to fetch session');
         const data = await res.json();
+        console.log('Session data:', JSON.stringify(data, null, 2));
         setSession(data);
       } catch (err) {
-        setError('Failed to load session');
-        console.error(err);
+        console.error('Fetch session error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load session');
       } finally {
         setLoading(false);
       }
@@ -128,6 +131,22 @@ export default function SessionChatPage() {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="text-gray-400">Loading session...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-red-400">Error: {error}</div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-gray-400">Session not found</div>
       </div>
     );
   }
