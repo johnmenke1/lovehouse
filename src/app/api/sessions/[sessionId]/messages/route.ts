@@ -71,7 +71,7 @@ export async function POST(
        LIMIT 20`,
       [sessionId]
     );
-    const recentHistory = historyResult.rows.reverse();
+    const recentHistory = (historyResult.rows as { senderName: string; content: string; senderType: string }[]).reverse();
 
     // 4. Have each agent respond in turn
     for (const agent of agents as { id: string; name: string; system_prompt: string; mood: string }[]) {
