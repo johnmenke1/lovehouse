@@ -43,11 +43,13 @@ export async function POST(request: Request) {
     }
 
     // Create session
+    // Build hierarchy_order as array of UUIDs
+    const hierarchyOrder = agentIds.map((id: string) => id);
     const sessionResult = await query(
       `INSERT INTO sessions (name, hierarchy_order)
        VALUES ($1, $2)
        RETURNING *`,
-      [name || 'New Session', JSON.stringify(agentIds)]
+      [name || 'New Session', hierarchyOrder]
     );
 
     if (sessionResult.rows.length === 0) {
