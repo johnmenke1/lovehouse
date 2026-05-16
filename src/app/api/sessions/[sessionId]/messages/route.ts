@@ -87,16 +87,16 @@ Instructions: You are in a roleplay conversation. Stay in character as ${agentNa
         content: `${m.senderName}: ${m.content}`
       }));
 
-      // Call the LLM - prefer Hermes if configured, fall back to MiniMax
+      // Call Hermes API (primary) or MiniMax (fallback)
       let agentContent: string;
       
       const hermesUrl = process.env.HERMES_API_URL;
       
       if (hermesUrl) {
-        // Use Hermes API (OpenAI-compatible format)
+        // Use Hermes API (OpenAI-compatible format) - PRIMARY
         agentContent = await callHermesAPI(hermesUrl, agentName, systemPrompt, conversationMessages, content);
       } else {
-        // Fall back to MiniMax
+        // Fall back to MiniMax only if Hermes is not configured
         agentContent = await callMinimaxAPI(agentName, agent.system_prompt, agentMood, recentHistory, content);
       }
 
